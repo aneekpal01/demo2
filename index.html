@@ -154,12 +154,98 @@
             const messageInput = document.getElementById('message-input');
             const sendBtn = document.getElementById('send-btn');
 
-            // Hardcoded "AI" Response
-            const FIXED_RESPONSE = `Here is the formula for Universal Gravitation:
-            \\[ F = G \\frac{m_1 m_2}{r^2} \\]
-            
-            And here is Einstein's famous equation:
-            \\[ E = mc^2 \\]`;
+            // --- KNOWLEDGE BASE ---
+            // A simple "Brain" for our simulated AI
+            const knowledgeBase = [
+                {
+                    keywords: ['hello', 'hi', 'hey', 'start'],
+                    response: "Hello! I am ready to help you with Math & Physics. Ask me about **Gravity**, **Relativity**, **Calculus**, **Matrices**, **Thermodynamics**, or **Quantum Mechanics**!"
+                },
+                {
+                    keywords: ['gravity', 'newton', 'force'],
+                    response: "Here is Newton's Law of Universal Gravitation:\n\\[ F = G \\frac{m_1 m_2}{r^2} \\]"
+                },
+                {
+                    keywords: ['relativity', 'einstein', 'energy', 'mass'],
+                    response: "Einstein's Mass-Energy Equivalence principle:\n\\[ E = mc^2 \\]\n\nAnd the General Relativity field equation:\n\\[ R_{\\mu \\nu} - \\frac{1}{2}R g_{\\mu \\nu} = \\frac{8 \\pi G}{c^4} T_{\\mu \\nu} \\]"
+                },
+                {
+                    keywords: ['integral', 'calculus', 'area', 'fundamental'],
+                    response: "The Fundamental Theorem of Calculus links differentiation and integration:\n\\[ \\int_a^b f'(x) \\,dx = f(b) - f(a) \\]"
+                },
+                {
+                    keywords: ['derivative', 'slope', 'rate'],
+                    response: "The definition of a derivative:\n\\[ f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h} \\]"
+                },
+                {
+                    keywords: ['matrix', 'matrices', 'linear', 'algebra'],
+                    response: "Here is a 2D Rotation Matrix:\n\\[ R(\\theta) = \\begin{pmatrix} \\cos \\theta & -\\sin \\theta \\\\ \\sin \\theta & \\cos \\theta \\end{pmatrix} \\]"
+                },
+                {
+                    keywords: ['schrodinger', 'quantum', 'wave'],
+                    response: "The Time-Dependent Schrödinger Equation:\n\\[ i \\hbar \\frac{\\partial}{\\partial t} \\Psi = \\hat{H} \\Psi \\]"
+                },
+                {
+                    keywords: ['maxwell', 'electromagnetism', 'magnetic', 'electric'],
+                    response: "Maxwell's Equations (Integral form):\n\\[ \\oint_{\\partial \\Sigma} \\mathbf{E} \\cdot d\\boldsymbol{\\ell} = -\\frac{d}{dt} \\iint_{\\Sigma} \\mathbf{B} \\cdot d\\mathbf{S} \\]"
+                },
+                {
+                    keywords: ['quadratic', 'roots', 'polynomial'],
+                    response: "The Quadratic Formula for solving \\(ax^2 + bx + c = 0\\):\n\\[ x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} \\]"
+                },
+                {
+                    keywords: ['euler', 'identity', 'complex'],
+                    response: "Euler's Identity, often called the most beautiful equation in math:\n\\[ e^{i\\pi} + 1 = 0 \\]"
+                },
+                {
+                    keywords: ['pythagoras', 'triangle', 'geometry'],
+                    response: "The Pythagorean Theorem:\n\\[ a^2 + b^2 = c^2 \\]"
+                },
+                {
+                    keywords: ['circle', 'area of circle'],
+                    response: "Area of a circle:\n\\[ A = \\pi r^2 \\]"
+                },
+                {
+                    keywords: ['thermodynamics', 'entropy', 'heat'],
+                    response: "The Second Law of Thermodynamics (Entropy):\n\\[ \\Delta S \\ge 0 \\]\n\nOr the Ideal Gas Law:\n\\[ PV = nRT \\]"
+                },
+                {
+                    keywords: ['fourier', 'series', 'transform'],
+                    response: "The Fourier Transform:\n\\[ \\hat{f}(\\xi) = \\int_{-\\infty}^{\\infty} f(x) e^{-2\\pi i x \\xi} \\,dx \\]"
+                },
+                {
+                    keywords: ['standard deviation', 'statistics', 'stats'],
+                    response: "Population Standard Deviation:\n\\[ \\sigma = \\sqrt{\\frac{1}{N} \\sum_{i=1}^N (x_i - \\mu)^2} \\]"
+                },
+                {
+                    keywords: ['limit', 'infinity'],
+                    response: "Standard limit definition of e:\n\\[ e = \\lim_{n \\to \\infty} \\left(1 + \\frac{1}{n}\\right)^n \\]"
+                }
+            ];
+
+            const fallbackResponses = [
+                "That's an interesting topic! Here is something related to Chaos Theory:\n\\[ x_{n+1} = r x_n (1 - x_n) \\]",
+                "I'm not sure about that specific one, but check out the Normal Distribution:\n\\[ f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} e^{-\\frac{1}{2}\\left(\\frac{x-\\mu}{\\sigma}\\right)^2} \\]",
+                "Here is a cool vector identity for you:\n\\[ \\nabla \\cdot (\\nabla \\times \\mathbf{A}) = 0 \\]",
+                "Let's look at the Taylor Series expansion instead:\n\\[ f(x) = \\sum_{n=0}^{\\infty} \\frac{f^{(n)}(a)}{n!} (x-a)^n \\]"
+            ];
+
+            function getBotResponse(input) {
+                const lowerInput = input.toLowerCase();
+
+                // 1. Check knowledge base
+                for (const item of knowledgeBase) {
+                    for (const keyword of item.keywords) {
+                        if (lowerInput.includes(keyword)) {
+                            return item.response;
+                        }
+                    }
+                }
+
+                // 2. Fallback to random smart formula
+                const randomIndex = Math.floor(Math.random() * fallbackResponses.length);
+                return fallbackResponses[randomIndex];
+            }
 
             function renderMath(element) {
                 renderMathInElement(element, {
@@ -173,24 +259,19 @@
                 });
             }
 
-            // Initial render for the greeting
+            // Initial render
             renderMath(document.body);
 
             function addMessage(text, isUser) {
                 const bubble = document.createElement('div');
                 bubble.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
 
-                // For simplicity in this demo, we treat text as HTML to allow block display 
-                // In a real app, you'd sanitize this!
-                // We'll replace newlines with <br> for basic formatting
+                // Convert newlines to breaks for display
                 bubble.innerHTML = text.replace(/\n/g, '<br>');
 
                 chatContainer.appendChild(bubble);
-
-                // Scroll to bottom
                 chatContainer.scrollTop = chatContainer.scrollHeight;
 
-                // Render Math in the new bubble
                 renderMath(bubble);
             }
 
@@ -198,14 +279,15 @@
                 const text = messageInput.value.trim();
                 if (!text) return;
 
-                // 1. Show User Message
+                // User Message
                 addMessage(text, true);
                 messageInput.value = '';
 
-                // 2. Simulate AI Delay then Show Fixed Response
+                // AI Processing Delay
                 setTimeout(() => {
-                    addMessage(FIXED_RESPONSE, false);
-                }, 600);
+                    const response = getBotResponse(text);
+                    addMessage(response, false);
+                }, 600 + Math.random() * 400); // Random delay 600-1000ms
             }
 
             sendBtn.addEventListener('click', handleSend);
